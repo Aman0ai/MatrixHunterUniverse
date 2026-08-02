@@ -1,10 +1,10 @@
 {
   "level_progress": {
-    "Matrix Sniper": 5,
-    "Matrix Assassin": 5,
-    "Matrix Space Battle": 5
+    "Matrix Sniper": 6,
+    "Matrix Assassin": 11,
+    "Matrix Space Battle": 7
   },
-  "coins": 173,
+  "coins": 402,
   "achievements": [
     "first_blood"
   ]

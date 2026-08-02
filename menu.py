@@ -538,18 +538,21 @@ class PauseMenu:
         self,
         on_resume: Callable,
         on_settings: Callable,
+        on_level_select: Callable,
         on_quit: Callable,
     ) -> None:
         cx = SCREEN_WIDTH  // 2
-        cy = SCREEN_HEIGHT // 2 - 40
-        bw, bh, gap = 220, 48, 14
+        cy = SCREEN_HEIGHT // 2 - 60
+        bw, bh, gap = 240, 48, 14
 
         self._buttons = [
             Button(cx, cy,             bw, bh, "RESUME",   on_resume,
                    MATRIX_GREEN, BLACK, FONT_LARGE, "▶", "center"),
             Button(cx, cy + bh+gap,    bw, bh, "SETTINGS", on_settings,
                    NEON_CYAN,    BLACK, FONT_MEDIUM, "⚙", "center"),
-            Button(cx, cy+(bh+gap)*2,  bw, bh, "QUIT GAME",on_quit,
+            Button(cx, cy+(bh+gap)*2,  bw, bh, "LEVEL SELECT", on_level_select,
+                   NEON_ORANGE,  BLACK, FONT_MEDIUM, "◀", "center"),
+            Button(cx, cy+(bh+gap)*3,  bw, bh, "MAIN MENU",on_quit,
                    NEON_RED,     BLACK, FONT_MEDIUM, "✕", "center"),
         ]
         self._overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)

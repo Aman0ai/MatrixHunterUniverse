@@ -436,19 +436,19 @@ class RunnerGame:
             self.ACCEL = 5.0
         elif level <= 6:
             self._target_dist = 2000.0
-            self.INITIAL_SPEED = 500.0
-            self.MAX_SPEED = 1000.0
-            self.ACCEL = 20.0
+            self.INITIAL_SPEED = 350.0
+            self.MAX_SPEED = 650.0
+            self.ACCEL = 6.0
         elif level <= 9:
             self._target_dist = 3000.0
-            self.INITIAL_SPEED = 700.0
-            self.MAX_SPEED = 1200.0
-            self.ACCEL = 10.0
+            self.INITIAL_SPEED = 400.0
+            self.MAX_SPEED = 700.0
+            self.ACCEL = 7.0
         else:
             self._target_dist = 4000.0
-            self.INITIAL_SPEED = 1000.0
-            self.MAX_SPEED = 1800.0
-            self.ACCEL = 15.0
+            self.INITIAL_SPEED = 450.0
+            self.MAX_SPEED = 800.0
+            self.ACCEL = 8.0
             
         self._speed     = self.INITIAL_SPEED
         self._dist      = 0.0          # metres scrolled

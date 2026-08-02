@@ -554,203 +554,260 @@ class AssassinPlayer(BasePlayer):
 # 'K' = key, 'D' = door, 'G' = guard
 
 LEVEL_MAPS = [
-    # Level 1 — single-floor facility (15×12 tiles)
+    # Level 1 — Simple Corridor (2-point patrols)
     dict(
         tiles=[
-            _wall(0,0,15,1), _wall(0,11,15,1),   # top/bottom border
-            _wall(0,0,1,12), _wall(14,0,1,12),   # left/right border
-            _wall(3,2,3,2), _wall(9,2,3,2),       # interior blocks
-            _wall(5,5,5,2), _wall(2,8,4,1), _wall(9,8,4,1),
+            _wall(0,0,20,1), _wall(0,10,20,1),
+            _wall(0,0,1,11), _wall(19,0,1,11),
+            _wall(6,1,2,6), _wall(13,4,2,6),
         ],
-        player=(2*TILE_SIZE, 2*TILE_SIZE),
-        exit  =(13*TILE_SIZE, 10*TILE_SIZE),
-        keys  =[(6*TILE_SIZE, 9*TILE_SIZE, 1)],
-        doors =[pygame.Rect(12*TILE_SIZE, 9*TILE_SIZE, TILE_SIZE, TILE_SIZE*2)],
+        player=(2*TILE_SIZE, 5*TILE_SIZE),
+        exit  =(17*TILE_SIZE, 5*TILE_SIZE),
+        keys  =[(4*TILE_SIZE, 8*TILE_SIZE, 1)],
+        doors=[pygame.Rect(13*TILE_SIZE, 1*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*3)],
         door_keys=[1],
         guard_waypoints=[
-            [(3*TILE_SIZE, 4*TILE_SIZE), (6*TILE_SIZE, 4*TILE_SIZE)],
-            [(8*TILE_SIZE, 8*TILE_SIZE), (12*TILE_SIZE, 8*TILE_SIZE)],
-            [(7*TILE_SIZE, 2*TILE_SIZE), (7*TILE_SIZE, 6*TILE_SIZE)],
+            [(9*TILE_SIZE, 2*TILE_SIZE), (9*TILE_SIZE, 8*TILE_SIZE)],
         ],
-        guard_mirrors=[False, True, False],
+        guard_mirrors=[False],
+        heals=[]
     ),
-    # Level 2 — The Blockade
+    # Level 2 — Open Rooms (2-point patrols)
+    dict(
+        tiles=[
+            _wall(0,0,20,1), _wall(0,16,20,1),
+            _wall(0,0,1,17), _wall(19,0,1,17),
+            _wall(9,0,2,6), _wall(9,10,2,6),
+        ],
+        player=(2*TILE_SIZE, 2*TILE_SIZE),
+        exit  =(17*TILE_SIZE, 14*TILE_SIZE),
+        keys  =[(2*TILE_SIZE, 14*TILE_SIZE, 1)],
+        doors=[pygame.Rect(9*TILE_SIZE, 6*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4)],
+        door_keys=[1],
+        guard_waypoints=[
+            [(4*TILE_SIZE, 4*TILE_SIZE), (4*TILE_SIZE, 12*TILE_SIZE)],
+            [(14*TILE_SIZE, 4*TILE_SIZE), (14*TILE_SIZE, 12*TILE_SIZE)],
+        ],
+        guard_mirrors=[False, False],
+        heals=[]
+    ),
+    # Level 3 — Simple Maze (2-point patrols)
     dict(
         tiles=[
             _wall(0,0,20,1), _wall(0,14,20,1),
             _wall(0,0,1,15), _wall(19,0,1,15),
-            # Three big vertical walls
-            _wall(5,0,2,6), _wall(5,9,2,6),
-            _wall(11,3,2,9),
-            _wall(16,0,2,4), _wall(16,8,2,7),
+            _wall(4,4,12,2), _wall(4,8,12,2),
         ],
-        player=(2*TILE_SIZE, 7*TILE_SIZE),
-        exit  =(17*TILE_SIZE, 6*TILE_SIZE),
-        keys  =[
-            (3*TILE_SIZE, 2*TILE_SIZE, 1),
-            (14*TILE_SIZE, 12*TILE_SIZE, 2),
+        player=(2*TILE_SIZE, 2*TILE_SIZE),
+        exit  =(17*TILE_SIZE, 12*TILE_SIZE),
+        keys  =[(9*TILE_SIZE, 6*TILE_SIZE, 1)],
+        doors=[pygame.Rect(16*TILE_SIZE, 10*TILE_SIZE, TILE_SIZE*3, TILE_SIZE*2)],
+        door_keys=[1],
+        guard_waypoints=[
+            [(2*TILE_SIZE, 6*TILE_SIZE), (17*TILE_SIZE, 6*TILE_SIZE)],
+            [(17*TILE_SIZE, 10*TILE_SIZE), (2*TILE_SIZE, 10*TILE_SIZE)],
         ],
-        doors =[
-            pygame.Rect(11*TILE_SIZE, 0, TILE_SIZE*2, TILE_SIZE*3),
-            pygame.Rect(16*TILE_SIZE, 4*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4),
+        guard_mirrors=[False, False],
+        heals=[]
+    ),
+    # Level 4 — Grid Maze (3-point patrols)
+    dict(
+        tiles=[
+            _wall(0,0,22,1), _wall(0,22,22,1),
+            _wall(0,0,1,23), _wall(21,0,1,23),
+            _wall(5,5,4,4), _wall(13,5,4,4),
+            _wall(5,13,4,4), _wall(13,13,4,4),
+        ],
+        player=(2*TILE_SIZE, 2*TILE_SIZE),
+        exit  =(19*TILE_SIZE, 19*TILE_SIZE),
+        keys  =[(11*TILE_SIZE, 2*TILE_SIZE, 1), (2*TILE_SIZE, 11*TILE_SIZE, 2)],
+        doors=[
+            pygame.Rect(9*TILE_SIZE, 5*TILE_SIZE, TILE_SIZE*4, TILE_SIZE*2),
+            pygame.Rect(9*TILE_SIZE, 15*TILE_SIZE, TILE_SIZE*4, TILE_SIZE*2),
         ],
         door_keys=[1, 2],
         guard_waypoints=[
-            [(8*TILE_SIZE, 2*TILE_SIZE), (8*TILE_SIZE, 12*TILE_SIZE)],
-            [(14*TILE_SIZE, 2*TILE_SIZE), (14*TILE_SIZE, 8*TILE_SIZE)],
-            [(2*TILE_SIZE, 11*TILE_SIZE), (4*TILE_SIZE, 11*TILE_SIZE)],
-            [(17*TILE_SIZE, 1*TILE_SIZE), (18*TILE_SIZE, 1*TILE_SIZE)],
+            [(3*TILE_SIZE, 3*TILE_SIZE), (9*TILE_SIZE, 3*TILE_SIZE), (9*TILE_SIZE, 9*TILE_SIZE)],
+            [(19*TILE_SIZE, 3*TILE_SIZE), (13*TILE_SIZE, 3*TILE_SIZE), (13*TILE_SIZE, 9*TILE_SIZE)],
+            [(3*TILE_SIZE, 19*TILE_SIZE), (9*TILE_SIZE, 19*TILE_SIZE), (9*TILE_SIZE, 13*TILE_SIZE)],
         ],
-        guard_mirrors=[False, False, False, False],
+        guard_mirrors=[False, False, False],
+        heals=[]
     ),
-    # Level 3 — The Crossfire
+    # Level 5 — H-Shaped Maze (3-point patrols)
     dict(
         tiles=[
-            _wall(0,0,22,1), _wall(0,18,22,1),
-            _wall(0,0,1,19), _wall(21,0,1,19),
-            # Corner blocks defining the cross
-            _wall(0,0,6,6), _wall(16,0,6,6),
-            _wall(0,13,6,6),_wall(16,13,6,6),
-            # Middle obstacles
-            _wall(10,8,2,3),
+            _wall(0,0,24,1), _wall(0,20,24,1),
+            _wall(0,0,1,21), _wall(23,0,1,21),
+            _wall(6,1,2,8), _wall(6,13,2,8),
+            _wall(16,1,2,8), _wall(16,13,2,8),
+            _wall(6,9,12,2),
         ],
-        player=(1*TILE_SIZE, 9*TILE_SIZE),
-        exit  =(20*TILE_SIZE, 9*TILE_SIZE),
-        keys  =[
-            (11*TILE_SIZE, 1*TILE_SIZE, 1),
-            (11*TILE_SIZE, 17*TILE_SIZE, 2),
-            (8*TILE_SIZE, 9*TILE_SIZE, 3),
-        ],
+        player=(3*TILE_SIZE, 10*TILE_SIZE),
+        exit  =(20*TILE_SIZE, 10*TILE_SIZE),
+        keys  =[(3*TILE_SIZE, 3*TILE_SIZE, 1), (3*TILE_SIZE, 17*TILE_SIZE, 2)],
         doors=[
-            pygame.Rect(16*TILE_SIZE, 6*TILE_SIZE, TILE_SIZE, TILE_SIZE*2),
-            pygame.Rect(16*TILE_SIZE, 11*TILE_SIZE, TILE_SIZE, TILE_SIZE*2),
-            pygame.Rect(19*TILE_SIZE, 8*TILE_SIZE, TILE_SIZE, TILE_SIZE*3),
+            pygame.Rect(16*TILE_SIZE, 9*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4),
         ],
-        door_keys=[1, 2, 3],
+        door_keys=[1, 2],
         guard_waypoints=[
-            # Horizontal sweeps
-            [(6*TILE_SIZE, 7*TILE_SIZE), (14*TILE_SIZE, 7*TILE_SIZE)],
-            [(6*TILE_SIZE, 11*TILE_SIZE), (14*TILE_SIZE, 11*TILE_SIZE)],
-            # Vertical sweeps
-            [(7*TILE_SIZE, 6*TILE_SIZE), (7*TILE_SIZE, 12*TILE_SIZE)],
-            [(14*TILE_SIZE, 6*TILE_SIZE), (14*TILE_SIZE, 12*TILE_SIZE)],
+            [(11*TILE_SIZE, 4*TILE_SIZE), (11*TILE_SIZE, 7*TILE_SIZE), (14*TILE_SIZE, 7*TILE_SIZE)],
+            [(11*TILE_SIZE, 16*TILE_SIZE), (11*TILE_SIZE, 13*TILE_SIZE), (14*TILE_SIZE, 13*TILE_SIZE)],
+            [(20*TILE_SIZE, 4*TILE_SIZE), (20*TILE_SIZE, 16*TILE_SIZE)],
         ],
-        guard_mirrors=[False, False, False, False],
+        guard_mirrors=[False, False, False],
+        heals=[]
     ),
-    # Level 4 — tight labyrinth
+    # Level 6 — Cross Maze (3-point patrols)
     dict(
         tiles=[
-            _wall(0,0,24,1), _wall(0,18,24,1),
-            _wall(0,0,1,19), _wall(23,0,1,19),
-            _wall(4,0,2,14), _wall(8,5,2,14),
-            _wall(14,0,2,14),_wall(18,5,2,14),
-            _wall(0,14,4,2), _wall(20,4,4,2),
+            _wall(0,0,24,1), _wall(0,24,24,1),
+            _wall(0,0,1,25), _wall(23,0,1,25),
+            _wall(0,0,8,8), _wall(16,0,8,8),
+            _wall(0,16,8,8), _wall(16,16,8,8),
+        ],
+        player=(12*TILE_SIZE, 22*TILE_SIZE),
+        exit  =(12*TILE_SIZE, 2*TILE_SIZE),
+        keys  =[(2*TILE_SIZE, 12*TILE_SIZE, 1), (22*TILE_SIZE, 12*TILE_SIZE, 2)],
+        doors=[
+            pygame.Rect(9*TILE_SIZE, 8*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
+            pygame.Rect(13*TILE_SIZE, 8*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
+        ],
+        door_keys=[1, 2],
+        guard_waypoints=[
+            [(10*TILE_SIZE, 10*TILE_SIZE), (10*TILE_SIZE, 14*TILE_SIZE), (14*TILE_SIZE, 14*TILE_SIZE), (14*TILE_SIZE, 10*TILE_SIZE)],
+            [(4*TILE_SIZE, 9*TILE_SIZE), (6*TILE_SIZE, 9*TILE_SIZE), (6*TILE_SIZE, 15*TILE_SIZE)],
+            [(20*TILE_SIZE, 9*TILE_SIZE), (18*TILE_SIZE, 9*TILE_SIZE), (18*TILE_SIZE, 15*TILE_SIZE)],
+        ],
+        guard_mirrors=[False, False, False],
+        heals=[]
+    ),
+    # Level 7 — Spiral Maze (4-point patrols)
+    dict(
+        tiles=[
+            _wall(0,0,22,1), _wall(0,22,22,1),
+            _wall(0,0,1,23), _wall(21,0,1,23),
+            _wall(4,4,14,2), _wall(4,4,2,14),
+            _wall(4,18,18,2), _wall(18,8,2,12),
+            _wall(8,8,12,2), _wall(8,8,2,8),
+            _wall(8,14,8,2), _wall(14,10,2,6),
         ],
         player=(2*TILE_SIZE, 2*TILE_SIZE),
-        exit  =(21*TILE_SIZE, 16*TILE_SIZE),
-        keys  =[
-            (6*TILE_SIZE, 16*TILE_SIZE, 1),
-            (12*TILE_SIZE, 2*TILE_SIZE, 2),
-            (16*TILE_SIZE, 16*TILE_SIZE, 3),
-        ],
+        exit  =(11*TILE_SIZE, 11*TILE_SIZE),
+        keys  =[(19*TILE_SIZE, 5*TILE_SIZE, 1), (2*TILE_SIZE, 20*TILE_SIZE, 2)],
         doors=[
-            pygame.Rect(4*TILE_SIZE, 14*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            pygame.Rect(14*TILE_SIZE, 14*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            pygame.Rect(20*TILE_SIZE, 14*TILE_SIZE, TILE_SIZE*3, TILE_SIZE*2),
+            pygame.Rect(14*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
+            pygame.Rect(11*TILE_SIZE, 14*TILE_SIZE, TILE_SIZE*3, TILE_SIZE*2),
+        ],
+        door_keys=[1, 2],
+        guard_waypoints=[
+            [(10*TILE_SIZE, 2*TILE_SIZE), (19*TILE_SIZE, 2*TILE_SIZE), (19*TILE_SIZE, 6*TILE_SIZE)],
+            [(6*TILE_SIZE, 6*TILE_SIZE), (6*TILE_SIZE, 16*TILE_SIZE), (16*TILE_SIZE, 16*TILE_SIZE)],
+            [(16*TILE_SIZE, 6*TILE_SIZE), (10*TILE_SIZE, 6*TILE_SIZE), (10*TILE_SIZE, 12*TILE_SIZE)],
+        ],
+        guard_mirrors=[False, False, False],
+        heals=[]
+    ),
+    # Level 8 — Key-Lock Maze (4-point patrols)
+    dict(
+        tiles=[
+            _wall(0,0,26,1), _wall(0,20,26,1),
+            _wall(0,0,1,21), _wall(25,0,1,21),
+            _wall(6,1,2,14), _wall(18,6,2,14),
+            _wall(6,6,8,2), _wall(12,12,8,2),
+        ],
+        player=(2*TILE_SIZE, 2*TILE_SIZE),
+        exit  =(23*TILE_SIZE, 18*TILE_SIZE),
+        keys  =[(2*TILE_SIZE, 18*TILE_SIZE, 1), (23*TILE_SIZE, 2*TILE_SIZE, 2), (10*TILE_SIZE, 9*TILE_SIZE, 3)],
+        doors=[
+            pygame.Rect(6*TILE_SIZE, 15*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*5),
+            pygame.Rect(18*TILE_SIZE, 1*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*5),
+            pygame.Rect(14*TILE_SIZE, 6*TILE_SIZE, TILE_SIZE*4, TILE_SIZE*2),
         ],
         door_keys=[1, 2, 3],
         guard_waypoints=[
-            [(2*TILE_SIZE, 4*TILE_SIZE), (2*TILE_SIZE, 12*TILE_SIZE)],
-            [(6*TILE_SIZE, 2*TILE_SIZE), (6*TILE_SIZE, 12*TILE_SIZE)],
-            [(10*TILE_SIZE, 8*TILE_SIZE), (10*TILE_SIZE, 16*TILE_SIZE)],
-            [(12*TILE_SIZE, 6*TILE_SIZE), (12*TILE_SIZE, 16*TILE_SIZE)],
-            [(16*TILE_SIZE, 2*TILE_SIZE), (16*TILE_SIZE, 12*TILE_SIZE)],
-            [(20*TILE_SIZE, 8*TILE_SIZE), (20*TILE_SIZE, 12*TILE_SIZE)],
+            [(9*TILE_SIZE, 3*TILE_SIZE), (15*TILE_SIZE, 3*TILE_SIZE), (15*TILE_SIZE, 5*TILE_SIZE), (9*TILE_SIZE, 5*TILE_SIZE)],
+            [(9*TILE_SIZE, 15*TILE_SIZE), (15*TILE_SIZE, 15*TILE_SIZE), (15*TILE_SIZE, 17*TILE_SIZE), (9*TILE_SIZE, 17*TILE_SIZE)],
+            [(22*TILE_SIZE, 6*TILE_SIZE), (22*TILE_SIZE, 12*TILE_SIZE)],
         ],
-        guard_mirrors=[False, False, True, False, True, False],
-        heals=[(14*TILE_SIZE, 2*TILE_SIZE)],
+        guard_mirrors=[False, False, False],
+        heals=[]
     ),
-    # Level 5 — The Core (Final Level)
+    # Level 9 — Dead-End Trap Maze (4-point patrols)
     dict(
         tiles=[
             _wall(0,0,28,1), _wall(0,20,28,1),
             _wall(0,0,1,21), _wall(27,0,1,21),
-            # Corner blocks
-            _wall(2,2,4,4), _wall(22,2,4,4),
-            _wall(2,15,4,4),_wall(22,15,4,4),
-            # Central core
-            _wall(10,8,8,5),
-            # Core barricades
-            _wall(10,5,2,2), _wall(16,5,2,2),
-            _wall(10,14,2,2),_wall(16,14,2,2),
-            _wall(7,9,2,3), _wall(19,9,2,3),
+            _wall(4,4,8,2), _wall(16,4,8,2),
+            _wall(4,14,8,2), _wall(16,14,8,2),
+            _wall(13,0,2,8), _wall(13,12,2,8),
         ],
-        player=(4*TILE_SIZE, 10*TILE_SIZE),
-        exit  =(14*TILE_SIZE, 10*TILE_SIZE),
-        keys  =[
-            (4*TILE_SIZE, 4*TILE_SIZE, 1),
-            (24*TILE_SIZE, 4*TILE_SIZE, 2),
-            (4*TILE_SIZE, 17*TILE_SIZE, 3),
-            (24*TILE_SIZE, 17*TILE_SIZE, 4),
-        ],
+        player=(2*TILE_SIZE, 10*TILE_SIZE),
+        exit  =(25*TILE_SIZE, 10*TILE_SIZE),
+        keys  =[(25*TILE_SIZE, 2*TILE_SIZE, 1), (25*TILE_SIZE, 18*TILE_SIZE, 2)],
         doors=[
-            pygame.Rect(8*TILE_SIZE, 7*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            pygame.Rect(18*TILE_SIZE, 7*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            pygame.Rect(8*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            pygame.Rect(18*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
-            # Core entrance
-            pygame.Rect(13*TILE_SIZE, 8*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2),
+            pygame.Rect(13*TILE_SIZE, 8*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4),
         ],
-        door_keys=[1, 2, 3, 4, 1], # Need multiple keys
+        door_keys=[1, 2],
         guard_waypoints=[
-            # Perimeter patrols
-            [(4*TILE_SIZE, 7*TILE_SIZE), (4*TILE_SIZE, 13*TILE_SIZE)],
-            [(24*TILE_SIZE, 7*TILE_SIZE), (24*TILE_SIZE, 13*TILE_SIZE)],
-            [(7*TILE_SIZE, 4*TILE_SIZE), (21*TILE_SIZE, 4*TILE_SIZE)],
-            [(7*TILE_SIZE, 17*TILE_SIZE), (21*TILE_SIZE, 17*TILE_SIZE)],
-            # Inner circle
-            [(9*TILE_SIZE, 7*TILE_SIZE), (9*TILE_SIZE, 13*TILE_SIZE)],
-            [(19*TILE_SIZE, 7*TILE_SIZE), (19*TILE_SIZE, 13*TILE_SIZE)],
+            [(7*TILE_SIZE, 7*TILE_SIZE), (11*TILE_SIZE, 7*TILE_SIZE), (11*TILE_SIZE, 13*TILE_SIZE), (7*TILE_SIZE, 13*TILE_SIZE)],
+            [(17*TILE_SIZE, 7*TILE_SIZE), (21*TILE_SIZE, 7*TILE_SIZE), (21*TILE_SIZE, 13*TILE_SIZE), (17*TILE_SIZE, 13*TILE_SIZE)],
+            [(2*TILE_SIZE, 4*TILE_SIZE), (2*TILE_SIZE, 16*TILE_SIZE)],
         ],
-        guard_mirrors=[False, True, False, True, False, True],
-        heals=[(4*TILE_SIZE, 2*TILE_SIZE), (24*TILE_SIZE, 19*TILE_SIZE)],
+        guard_mirrors=[False, False, False],
+        heals=[]
     ),
-    # Level 6 — THE ARCHITECT (Boss Level)
+    # Level 10 — Security Facility (Overlapping patrols)
+    dict(
+        tiles=[
+            _wall(0,0,30,1), _wall(0,24,30,1),
+            _wall(0,0,1,25), _wall(29,0,1,25),
+            _wall(5,5,6,6), _wall(19,5,6,6),
+            _wall(5,13,6,6), _wall(19,13,6,6),
+        ],
+        player=(2*TILE_SIZE, 12*TILE_SIZE),
+        exit  =(27*TILE_SIZE, 12*TILE_SIZE),
+        keys  =[(14*TILE_SIZE, 2*TILE_SIZE, 1), (14*TILE_SIZE, 22*TILE_SIZE, 2)],
+        doors=[
+            pygame.Rect(11*TILE_SIZE, 11*TILE_SIZE, TILE_SIZE*8, TILE_SIZE*2),
+        ],
+        door_keys=[1, 2],
+        guard_waypoints=[
+            [(4*TILE_SIZE, 4*TILE_SIZE), (25*TILE_SIZE, 4*TILE_SIZE), (25*TILE_SIZE, 12*TILE_SIZE)],
+            [(4*TILE_SIZE, 20*TILE_SIZE), (25*TILE_SIZE, 20*TILE_SIZE), (25*TILE_SIZE, 12*TILE_SIZE)],
+            [(15*TILE_SIZE, 4*TILE_SIZE), (15*TILE_SIZE, 20*TILE_SIZE)],
+            [(12*TILE_SIZE, 8*TILE_SIZE), (17*TILE_SIZE, 8*TILE_SIZE), (17*TILE_SIZE, 16*TILE_SIZE), (12*TILE_SIZE, 16*TILE_SIZE)],
+        ],
+        guard_mirrors=[False, False, False, False],
+        heals=[]
+    ),
+    # Level 11 — The Vault (Boss Level design)
     dict(
         tiles=[
             _wall(0,0,32,1), _wall(0,24,32,1),
             _wall(0,0,1,25), _wall(31,0,1,25),
-            # Maze
-            _wall(4,4,24,2),
-            _wall(4,10,24,2),
-            _wall(4,16,24,2),
-            _wall(4,22,24,2),
-            _wall(4,4,2,6), _wall(26,10,2,6),
-            _wall(4,16,2,6), _wall(26,22,2,6),
+            _wall(10,8,12,2), _wall(10,14,12,2),
+            _wall(10,8,2,8), _wall(20,8,2,8),
+            _wall(4,4,4,4), _wall(24,4,4,4),
+            _wall(4,16,4,4), _wall(24,16,4,4),
         ],
-        player=(2*TILE_SIZE, 2*TILE_SIZE),
-        exit  =(16*TILE_SIZE, 13*TILE_SIZE),
-        keys  =[
-            (2*TILE_SIZE, 8*TILE_SIZE, 1),
-            (29*TILE_SIZE, 8*TILE_SIZE, 2),
-            (2*TILE_SIZE, 20*TILE_SIZE, 3),
-            (29*TILE_SIZE, 20*TILE_SIZE, 4),
-        ],
+        player=(2*TILE_SIZE, 12*TILE_SIZE),
+        exit  =(15*TILE_SIZE, 11*TILE_SIZE),
+        keys  =[(2*TILE_SIZE, 2*TILE_SIZE, 1), (29*TILE_SIZE, 2*TILE_SIZE, 2), (2*TILE_SIZE, 22*TILE_SIZE, 3), (29*TILE_SIZE, 22*TILE_SIZE, 4)],
         doors=[
-            pygame.Rect(14*TILE_SIZE, 6*TILE_SIZE, TILE_SIZE*4, TILE_SIZE*4),
-            pygame.Rect(14*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE*4, TILE_SIZE*4),
+            pygame.Rect(12*TILE_SIZE, 10*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4),
+            pygame.Rect(18*TILE_SIZE, 10*TILE_SIZE, TILE_SIZE*2, TILE_SIZE*4),
         ],
-        door_keys=[1, 4], 
+        door_keys=[1, 2, 3, 4],
         guard_waypoints=[
-            [(2*TILE_SIZE, 6*TILE_SIZE), (29*TILE_SIZE, 6*TILE_SIZE)],
-            [(2*TILE_SIZE, 12*TILE_SIZE), (29*TILE_SIZE, 12*TILE_SIZE)],
-            [(2*TILE_SIZE, 18*TILE_SIZE), (29*TILE_SIZE, 18*TILE_SIZE)],
-            [(8*TILE_SIZE, 2*TILE_SIZE), (8*TILE_SIZE, 22*TILE_SIZE)],
-            [(16*TILE_SIZE, 2*TILE_SIZE), (16*TILE_SIZE, 22*TILE_SIZE)],
-            [(24*TILE_SIZE, 2*TILE_SIZE), (24*TILE_SIZE, 22*TILE_SIZE)],
+            [(6*TILE_SIZE, 2*TILE_SIZE), (25*TILE_SIZE, 2*TILE_SIZE), (25*TILE_SIZE, 9*TILE_SIZE), (6*TILE_SIZE, 9*TILE_SIZE)],
+            [(6*TILE_SIZE, 22*TILE_SIZE), (25*TILE_SIZE, 22*TILE_SIZE), (25*TILE_SIZE, 15*TILE_SIZE), (6*TILE_SIZE, 15*TILE_SIZE)],
+            [(16*TILE_SIZE, 3*TILE_SIZE), (16*TILE_SIZE, 7*TILE_SIZE), (2*TILE_SIZE, 7*TILE_SIZE)],
+            [(16*TILE_SIZE, 21*TILE_SIZE), (16*TILE_SIZE, 17*TILE_SIZE), (29*TILE_SIZE, 17*TILE_SIZE)],
+            [(15*TILE_SIZE, 10*TILE_SIZE), (16*TILE_SIZE, 10*TILE_SIZE), (16*TILE_SIZE, 14*TILE_SIZE), (15*TILE_SIZE, 14*TILE_SIZE)],
         ],
-        guard_mirrors=[False]*6,
-        heals=[(16*TILE_SIZE, 2*TILE_SIZE), (16*TILE_SIZE, 22*TILE_SIZE)],
+        guard_mirrors=[False]*5,
+        heals=[]
     ),
 ]
 

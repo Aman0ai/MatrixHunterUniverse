@@ -592,9 +592,9 @@ def _build_wave(w: dict) -> Tuple[List[SpaceEnemy|HeavyEnemy], Optional[SpaceBos
         n    = w["count"]
         cols = max(2, n // 2)
         rows = max(1, (n + cols - 1) // cols)
-        pts  = grid_formation(origin, rows, cols, 80, w["angle"])
+        pts  = grid_formation(origin, rows, cols, 200, w["angle"])
     else:
-        pts = v_formation(origin, w["count"], 80, w["angle"])
+        pts = v_formation(origin, w["count"], 200, w["angle"])
 
     for (ex, ey) in pts[:w["count"]]:
         enemies.append(SpaceEnemy(ex, ey))

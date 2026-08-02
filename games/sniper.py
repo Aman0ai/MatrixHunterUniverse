@@ -615,7 +615,6 @@ def _build_level_tiles(level: int = 1) -> List[Tile]:
         tiles.append(Tile(MAP_W-400, 200, 200, 200))
         tiles.append(Tile(200, MAP_H-400, 200, 200))
         tiles.append(Tile(MAP_W-400, MAP_H-400, 200, 200))
-        
     elif level == 2:
         # Sparse Cover: random scattered boxes (original logic)
         random.seed(42)
@@ -628,7 +627,6 @@ def _build_level_tiles(level: int = 1) -> List[Tile]:
             by = max(60, min(MAP_H - 60 - bh, by))
             tiles.append(Tile(bx, by, bw, bh))
         random.seed()
-        
     elif level == 3:
         # Cross Labyrinth: Big central cross and corners
         cx, cy = MAP_W // 2, MAP_H // 2
@@ -636,26 +634,55 @@ def _build_level_tiles(level: int = 1) -> List[Tile]:
         tiles.append(Tile(cx - 100, cy + 200, 200, 400)) # Bottom
         tiles.append(Tile(cx - 600, cy - 100, 400, 200)) # Left
         tiles.append(Tile(cx + 200, cy - 100, 400, 200)) # Right
-        
     elif level == 4:
         # City Grid: Dense square blocks
         for gx in range(300, MAP_W - 300, 350):
             for gy in range(300, MAP_H - 300, 350):
                 tiles.append(Tile(gx, gy, 150, 150))
-                
-    else: # Level 5 & 6
+    elif level == 5:
         # Concentric Rings / Forts
         cx, cy = MAP_W // 2, MAP_H // 2
-        # Center fort
         tiles.append(Tile(cx - 200, cy - 200, 400, 100))
         tiles.append(Tile(cx - 200, cy + 100, 400, 100))
         tiles.append(Tile(cx - 200, cy - 100, 100, 200))
         tiles.append(Tile(cx + 100, cy - 100, 100, 200))
-        
-        # Outer blocks
         for gx in [cx - 600, cx + 400]:
             for gy in [cy - 600, cy + 400]:
                 tiles.append(Tile(gx, gy, 200, 200))
+    elif level == 6:
+        # Vertical Corridors
+        for gx in range(200, MAP_W - 200, 400):
+            tiles.append(Tile(gx, 150, 100, MAP_H - 300))
+    elif level == 7:
+        # Horizontal Barriers
+        for gy in range(200, MAP_H - 200, 300):
+            tiles.append(Tile(150, gy, MAP_W - 300, 100))
+    elif level == 8:
+        # Checkered Cover
+        for gx in range(200, MAP_W - 100, 250):
+            for gy in range(200, MAP_H - 100, 250):
+                if (gx + gy) % 2 == 0:
+                    tiles.append(Tile(gx, gy, 150, 150))
+    elif level == 9:
+        # Diagonal Blocks
+        for i in range(1, 6):
+            tiles.append(Tile(i * 300, i * 200, 150, 150))
+            tiles.append(Tile(MAP_W - i * 300 - 150, i * 200, 150, 150))
+    elif level == 10:
+        # The Narrow Cross (Walls blocking corners, leaving a cross open)
+        cx, cy = MAP_W // 2, MAP_H // 2
+        tiles.append(Tile(100, 100, cx - 150, cy - 150)) # Top Left chunk
+        tiles.append(Tile(cx + 150, 100, cx - 250, cy - 150)) # Top Right chunk
+        tiles.append(Tile(100, cy + 150, cx - 150, cy - 250)) # Bot Left
+        tiles.append(Tile(cx + 150, cy + 150, cx - 250, cy - 250)) # Bot right
+    else: # Level 11 (The Architect)
+        # Arena: Massive central pillar and 4 corner pillars
+        cx, cy = MAP_W // 2, MAP_H // 2
+        tiles.append(Tile(cx - 300, cy - 300, 600, 600))
+        tiles.append(Tile(150, 150, 100, 100))
+        tiles.append(Tile(MAP_W - 250, 150, 100, 100))
+        tiles.append(Tile(150, MAP_H - 250, 100, 100))
+        tiles.append(Tile(MAP_W - 250, MAP_H - 250, 100, 100))
         
     return tiles
 

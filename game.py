@@ -154,10 +154,11 @@ class GameManager:
 
     def _build_pause(self) -> PauseMenu:
         return PauseMenu(
-            on_resume   = lambda: self._go_to(GameState.PLAYING),
-            on_settings = lambda: self._go_to(GameState.SETTINGS,
+            on_resume       = lambda: self._go_to(GameState.PLAYING),
+            on_settings     = lambda: self._go_to(GameState.SETTINGS,
                                                from_state=GameState.PAUSED),
-            on_quit     = lambda: self._go_to(GameState.MAIN_MENU),
+            on_level_select = lambda: self._go_to(GameState.LEVEL_SELECT),
+            on_quit         = lambda: self._go_to(GameState.MAIN_MENU),
         )
 
     def _build_settings(self) -> SettingsScreen:
