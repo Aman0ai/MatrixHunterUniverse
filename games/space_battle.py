@@ -134,7 +134,7 @@ class Spaceship:
 
     # ── update ────────────────────────────────────────────────────
 
-    def update(self, dt: float, keys: pygame.key.ScancodeWrapper) -> bool:
+    def update(self, dt: float, keys: pygame.key.ScancodeWrapper, joy_dir: Tuple[float, float] = (0.0, 0.0), shoot_btn: bool = False, bomb_btn: bool = False) -> bool:
         """Returns True if a bomb was dropped this frame."""
         self._inv_t  = max(0, self._inv_t  - dt)
         self._shield = max(0, self._shield - dt)
@@ -143,17 +143,17 @@ class Spaceship:
         self._bomb_t = max(0, self._bomb_t - dt)
 
         # Rotation
-        if keys[pygame.K_LEFT]  or keys[pygame.K_a]: self.angle -= 3.0 * dt
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]: self.angle += 3.0 * dt
+        if keys[pygame.K_LEFT]  or keys[pygame.K_a] or joy_dir[0] < -0.3: self.angle -= 3.0 * dt
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d] or joy_dir[0] > 0.3: self.angle += 3.0 * dt
 
         # Thrust — rotation matrix applied to forward vector (1, 0)
-        if keys[pygame.K_UP] or keys[pygame.K_w]:
+        if keys[pygame.K_UP] or keys[pygame.K_w] or joy_dir[1] < -0.3:
             fwd = mat_transform(mat_rotation(self.angle), (self.ACCEL, 0.0))
             self.vx += fwd[0] * dt
             self.vy += fwd[1] * dt
 
         # Brake
-        if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+        if keys[pygame.K_DOWN] or keys[pygame.K_s] or joy_dir[1] > 0.3:
             self.vx *= (1.0 - 3.0 * dt)
             self.vy *= (1.0 - 3.0 * dt)
 
@@ -176,13 +176,13 @@ class Spaceship:
 
         # Shoot
         cool = self.SHOOT_COOL * (0.4 if self._rapid > 0 else 1.0)
-        if (keys[pygame.K_SPACE] or keys[pygame.K_z]) and self._shoot_t <= 0:
+        if (keys[pygame.K_SPACE] or keys[pygame.K_z] or shoot_btn) and self._shoot_t <= 0:
             self._shoot_t = cool
             self._fire()
 
         # Bomb
         bomb_dropped = False
-        if keys[pygame.K_x] and self._bomb_t <= 0 and self._bomb_count > 0:
+        if (keys[pygame.K_x] or bomb_btn) and self._bomb_t <= 0 and self._bomb_count > 0:
             self._bomb_t      = self.BOMB_COOL
             self._bomb_count -= 1
             bomb_dropped      = True
@@ -745,6 +745,13 @@ class SpaceBattleGame:
         self._lives_disp= LivesDisplay(SCREEN_WIDTH // 2 - 60, SCREEN_HEIGHT - 65, max_lives=LIVES)
         self._vignette  = VignetteOverlay(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+        from games.common import VirtualJoystick, TouchButton
+        from config import NEON_RED, NEON_CYAN
+        
+        self._joy = VirtualJoystick(100, SCREEN_HEIGHT - 100, 60)
+        self._btn_shoot = TouchButton(SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100, 40, "Fire", NEON_RED)
+        self._btn_bomb = TouchButton(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100, 40, "Bomb", NEON_CYAN)
+
         self._wave_idx    = 0
         self._enemies: List[SpaceEnemy | HeavyEnemy] = []
         self._powerups: List[PowerUp] = []
@@ -776,6 +783,10 @@ class SpaceBattleGame:
     def handle_event(self, event: pygame.event.Event) -> Optional[str]:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             return "pause"
+            
+        self._joy.handle_event(event)
+        self._btn_shoot.handle_event(event)
+        self._btn_bomb.handle_event(event)
         return None
 
     def update(self, dt: float) -> Optional[str]:
@@ -783,6 +794,8 @@ class SpaceBattleGame:
             return self._result
 
         keys = pygame.key.get_pressed()
+        self._btn_shoot.update()
+        self._btn_bomb.update()
 
         # Wave intro delay
         if self._wave_intro_t > 0:
@@ -791,7 +804,7 @@ class SpaceBattleGame:
             return None
 
         # Player
-        bomb_dropped = self._player.update(dt, keys)
+        bomb_dropped = self._player.update(dt, keys, joy_dir=(self._joy.dir_x, self._joy.dir_y), shoot_btn=self._btn_shoot.is_pressed, bomb_btn=self._btn_bomb.is_pressed)
         if bomb_dropped:
             self._sound.play("big_explosion")
             cx, cy = self._player.center
@@ -1071,6 +1084,10 @@ class SpaceBattleGame:
         if self._settings.show_fps:
             self._fps_cnt.update(clock)
             self._fps_cnt.draw(self._screen)
+
+        self._joy.draw(self._screen)
+        self._btn_shoot.draw(self._screen)
+        self._btn_bomb.draw(self._screen)
 
         lvl_txt = "THE ARCHITECT" if self._level == 6 else f"LEVEL {self._level}"
         col = GOLD if self._level == 6 else self._theme_col

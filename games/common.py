@@ -524,3 +524,123 @@ class AvatarRenderer:
                 
         return False
 
+# ─────────────────────────────────────────────────────────────────────────────
+#  Mobile Touch Controls
+# ─────────────────────────────────────────────────────────────────────────────
+
+class VirtualJoystick:
+    """On-screen virtual joystick supporting multi-touch and mouse fallback."""
+    def __init__(self, x: float, y: float, radius: int = 60, color: Tuple[int,int,int] = NEON_CYAN):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.stick_x = x
+        self.stick_y = y
+        self.active_finger = None
+        self.dir_x = 0.0
+        self.dir_y = 0.0
+
+    def handle_event(self, event: pygame.event.Event) -> None:
+        if event.type == pygame.FINGERDOWN:
+            if self.active_finger is None:
+                fx = event.x * SCREEN_WIDTH
+                fy = event.y * SCREEN_HEIGHT
+                if math.hypot(fx - self.x, fy - self.y) < self.radius * 2.0:
+                    self.active_finger = event.finger_id
+                    self._update_stick(fx, fy)
+        elif event.type == pygame.FINGERMOTION:
+            if self.active_finger == event.finger_id:
+                fx = event.x * SCREEN_WIDTH
+                fy = event.y * SCREEN_HEIGHT
+                self._update_stick(fx, fy)
+        elif event.type == pygame.FINGERUP:
+            if self.active_finger == event.finger_id:
+                self.active_finger = None
+                self.stick_x, self.stick_y = self.x, self.y
+                self.dir_x, self.dir_y = 0.0, 0.0
+                
+        # Fallback for mouse testing
+        if event.type == pygame.MOUSEBUTTONDOWN and getattr(event, 'button', 1) == 1:
+            if self.active_finger is None:
+                mx, my = event.pos
+                if math.hypot(mx - self.x, my - self.y) < self.radius * 2.0:
+                    self.active_finger = "mouse"
+                    self._update_stick(mx, my)
+        elif event.type == pygame.MOUSEMOTION:
+            if self.active_finger == "mouse":
+                mx, my = event.pos
+                self._update_stick(mx, my)
+        elif event.type == pygame.MOUSEBUTTONUP and getattr(event, 'button', 1) == 1:
+            if self.active_finger == "mouse":
+                self.active_finger = None
+                self.stick_x, self.stick_y = self.x, self.y
+                self.dir_x, self.dir_y = 0.0, 0.0
+
+    def _update_stick(self, tx: float, ty: float) -> None:
+        dx = tx - self.x
+        dy = ty - self.y
+        dist = math.hypot(dx, dy)
+        if dist > self.radius:
+            dx = (dx / dist) * self.radius
+            dy = (dy / dist) * self.radius
+        self.stick_x = self.x + dx
+        self.stick_y = self.y + dy
+        # Normalize strictly up to 1.0
+        self.dir_x = dx / self.radius
+        self.dir_y = dy / self.radius
+
+    def draw(self, surface: pygame.Surface) -> None:
+        # Base circle
+        pygame.draw.circle(surface, (40, 40, 40), (int(self.x), int(self.y)), self.radius, 2)
+        # Inner stick
+        pygame.draw.circle(surface, self.color, (int(self.stick_x), int(self.stick_y)), self.radius // 2)
+
+class TouchButton:
+    """On-screen button supporting multi-touch and mouse fallback."""
+    def __init__(self, x: float, y: float, radius: int = 30, text: str = "", color: Tuple[int,int,int] = NEON_CYAN):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.text = text
+        self.color = color
+        self.is_pressed = False
+        self.just_pressed = False
+        self.active_finger = None
+
+    def update(self) -> None:
+        self.just_pressed = False  # Reset per frame
+
+    def handle_event(self, event: pygame.event.Event) -> None:
+        if event.type == pygame.FINGERDOWN:
+            fx = event.x * SCREEN_WIDTH
+            fy = event.y * SCREEN_HEIGHT
+            if math.hypot(fx - self.x, fy - self.y) < self.radius * 1.5:
+                self.active_finger = event.finger_id
+                self.is_pressed = True
+                self.just_pressed = True
+        elif event.type == pygame.FINGERUP:
+            if self.active_finger == event.finger_id:
+                self.active_finger = None
+                self.is_pressed = False
+                
+        # Mouse fallback
+        if event.type == pygame.MOUSEBUTTONDOWN and getattr(event, 'button', 1) == 1:
+            mx, my = event.pos
+            if math.hypot(mx - self.x, my - self.y) < self.radius * 1.5:
+                self.active_finger = "mouse"
+                self.is_pressed = True
+                self.just_pressed = True
+        elif event.type == pygame.MOUSEBUTTONUP and getattr(event, 'button', 1) == 1:
+            if self.active_finger == "mouse":
+                self.active_finger = None
+                self.is_pressed = False
+
+    def draw(self, surface: pygame.Surface) -> None:
+        col = (255, 255, 255) if self.is_pressed else self.color
+        if self.is_pressed:
+            pygame.draw.circle(surface, (col[0]//2, col[1]//2, col[2]//2), (int(self.x), int(self.y)), self.radius)
+        pygame.draw.circle(surface, col, (int(self.x), int(self.y)), self.radius, 2)
+        if self.text:
+            draw_text(surface, self.text, self.x, self.y, FONT_MEDIUM, col, anchor="center")
+

@@ -250,8 +250,35 @@ class RunnerPlayer:
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_SPACE, pygame.K_UP, pygame.K_w):
                 self._jump()
-            if event.key in (pygame.K_DOWN, pygame.K_s, pygame.K_LCTRL):
+            if event.key in (pygame.K_DOWN, pygame.K_s, pygame.K_LCTRL, pygame.K_c):
                 self._start_slide()
+
+        # Mobile Touch Controls (Tap = Jump, Swipe Down = Slide)
+        if event.type == pygame.FINGERDOWN:
+            self._touch_start_y = event.y
+            self._touch_id = event.finger_id
+        elif event.type == pygame.FINGERUP:
+            if getattr(self, '_touch_id', None) == event.finger_id:
+                dy = event.y - self._touch_start_y
+                if dy > 0.1:  # Swiped down
+                    self._start_slide()
+                else:         # Tap or swipe up
+                    self._jump()
+                self._touch_id = None
+
+        # Mouse fallback for testing
+        if event.type == pygame.MOUSEBUTTONDOWN and getattr(event, 'button', 1) == 1:
+            self._touch_start_y = event.pos[1]
+            self._touch_id = "mouse"
+        elif event.type == pygame.MOUSEBUTTONUP and getattr(event, 'button', 1) == 1:
+            if getattr(self, '_touch_id', None) == "mouse":
+                from config import SCREEN_HEIGHT
+                dy = (event.pos[1] - self._touch_start_y) / SCREEN_HEIGHT
+                if dy > 0.1:
+                    self._start_slide()
+                else:
+                    self._jump()
+                self._touch_id = None
 
     def _jump(self) -> None:
         if self._jumps < 2:

@@ -457,21 +457,22 @@ class AssassinPlayer(BasePlayer):
 
     def update(self, dt: float, keys: pygame.key.ScancodeWrapper,
                obstacles: List[pygame.Rect],
-               doors: List[Door]) -> str:
+               doors: List[Door], joy_dir: Tuple[float, float] = (0.0, 0.0), crouch_btn: bool = False) -> str:
         """Return "" or "footstep"."""
         self.update_invincible(dt)
+        self.crouch = keys[pygame.K_LCTRL] or keys[pygame.K_c] or crouch_btn
         speed = self.CROUCH_SPEED if self.crouch else self.WALK_SPEED
         w, h  = self.SIZE_CROUCH if self.crouch else self.SIZE_NORMAL
         self.width, self.height = w, h
 
-        dx, dy = 0.0, 0.0
+        dx, dy = joy_dir
         if keys[pygame.K_w] or keys[pygame.K_UP]:    dy -= 1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:  dy += 1
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:  dx -= 1
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx += 1
         mag = math.hypot(dx, dy)
         moving = mag > 0
-        if moving:
+        if moving and mag > 1.0:
             dx, dy = dx/mag, dy/mag
 
         self.vx = dx * speed
@@ -848,6 +849,13 @@ class AssassinGame:
         self._stealth_kills = 0
         self._floats     = FloatingTextManager()
 
+        from games.common import VirtualJoystick, TouchButton
+        from config import NEON_RED, NEON_GREEN
+        
+        self._joy = VirtualJoystick(100, SCREEN_HEIGHT - 100, 60)
+        self._btn_action = TouchButton(SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100, 40, "E", NEON_RED)
+        self._btn_crouch = TouchButton(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100, 40, "C", NEON_GREEN)
+
         self._load_level(self._level_idx)
         self._sound.play_music("music_assassin")
         self._msgs.push(f"LEVEL {self._level} — Collect the key and reach the EXIT!", NEON_CYAN, 4.0)
@@ -901,8 +909,19 @@ class AssassinGame:
     def handle_event(self, event: pygame.event.Event) -> Optional[str]:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             return "pause"
-        # Interact with doors & Stealth Kills
+            
+        self._joy.handle_event(event)
+        self._btn_action.handle_event(event)
+        self._btn_crouch.handle_event(event)
+        
+        action_triggered = False
         if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+            action_triggered = True
+        if getattr(self._btn_action, 'just_pressed', False):
+            action_triggered = True
+
+        # Interact with doors & Stealth Kills
+        if action_triggered:
             stealth_killed = False
             for guard in self._guards[:]:
                 if self._player.try_stealth_kill(guard):
@@ -938,9 +957,12 @@ class AssassinGame:
             return self._result
 
         keys = pygame.key.get_pressed()
+        
+        self._btn_action.update()
+        self._btn_crouch.update()
 
         # Player movement
-        sfx = self._player.update(dt, keys, self._obs_rects, self._doors)
+        sfx = self._player.update(dt, keys, self._obs_rects, self._doors, joy_dir=(self._joy.dir_x, self._joy.dir_y), crouch_btn=self._btn_crouch.is_pressed)
         if sfx == "footstep":
             self._sound.play("footstep")
 
@@ -1082,13 +1104,19 @@ class AssassinGame:
 
         # ── HUD ──────────────────────────────────────────────────
         hp_ratio = 1.0 if not self._alarm else 0.25 # Vignette pulse intense during alarm
-        self._vignette.draw(self._screen, hp_ratio)
+        self._screen.blit(world, (0, 0))
+
+        # HUD
         self._score_disp.draw(self._screen)
         self._lives_disp.draw(self._screen)
+        self._vignette.draw(self._screen)
+        self._fps_cnt.draw(self._screen)
 
-        if self._settings.show_fps:
-            self._fps_cnt.update(clock)
-            self._fps_cnt.draw(self._screen)
+        # Mobile Controls
+        self._joy.draw(self._screen)
+        self._btn_action.draw(self._screen)
+        self._btn_crouch.draw(self._screen)
+        self._fps_cnt.draw(self._screen)
 
         # Level indicator
         lvl_txt = "THE ARCHITECT" if self._level == 6 else f"LEVEL {self._level}"

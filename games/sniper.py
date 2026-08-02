@@ -214,20 +214,36 @@ class SniperPlayer(BasePlayer):
     # ── update ────────────────────────────────────────────────────
 
     def update(self, dt: float, keys, world_mouse: Tuple[float, float],
-               mouse_buttons, obstacles: List[pygame.Rect]) -> None:
+               mouse_buttons, obstacles: List[pygame.Rect],
+               move_joy: Tuple[float, float] = (0.0, 0.0),
+               aim_joy: Tuple[float, float] = (0.0, 0.0),
+               dash_btn: bool = False, shoot_btn: bool = False) -> None:
         self.update_invincible(dt)
         self._muzzle_t = max(0.0, self._muzzle_t - dt)
 
-        dx, dy = 0.0, 0.0
+        # Dash logic
+        if getattr(self, '_dash_t', 0.0) > 0:
+            self._dash_t -= dt
+            speed_mult = 3.0
+        else:
+            speed_mult = 1.0
+            if (keys[pygame.K_LSHIFT] or dash_btn) and getattr(self, '_dash_cooldown', 0.0) <= 0:
+                self._dash_t = 0.2
+                self._dash_cooldown = 1.0
+                speed_mult = 3.0
+        
+        self._dash_cooldown = max(0.0, getattr(self, '_dash_cooldown', 0.0) - dt)
+
+        dx, dy = move_joy
         if keys[pygame.K_w] or keys[pygame.K_UP]:    dy -= 1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:  dy += 1
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:  dx -= 1
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx += 1
         mag = math.hypot(dx, dy)
-        if mag > 0:
+        if mag > 0 and mag > 1.0:
             dx, dy = dx/mag, dy/mag
-        self.vx = dx * self.SPEED
-        self.vy = dy * self.SPEED
+        self.vx = dx * self.SPEED * speed_mult
+        self.vy = dy * self.SPEED * speed_mult
 
         self.x += self.vx * dt
         for obs in obstacles:
@@ -241,8 +257,17 @@ class SniperPlayer(BasePlayer):
                 if self.vy < 0: self.y = obs.bottom
 
         cx, cy = self.center
-        mx, my = world_mouse
-        self.angle = math.atan2(my - cy, mx - cx)
+        
+        # Aim logic
+        if aim_joy[0] != 0.0 or aim_joy[1] != 0.0:
+            self.angle = math.atan2(aim_joy[1], aim_joy[0])
+            if shoot_btn and getattr(self, '_cooldown', 0) <= 0 and self._reloading == 0:
+                self._shoot()
+        else:
+            mx, my = world_mouse
+            self.angle = math.atan2(my - cy, mx - cx)
+            if (mouse_buttons[0] or shoot_btn) and getattr(self, '_cooldown', 0) <= 0 and self._reloading == 0:
+                self._shoot()
 
         if self._reloading > 0:
             self._reloading -= dt
@@ -252,9 +277,6 @@ class SniperPlayer(BasePlayer):
 
         if self._cooldown > 0:
             self._cooldown -= dt
-
-        if mouse_buttons[0] and self._cooldown <= 0 and self._reloading == 0:
-            self._shoot()
 
         for b in self.bullets:
             b.update(dt)
@@ -772,6 +794,13 @@ class SniperGame:
                                          max_lives=LIVES)
         self._vignette    = VignetteOverlay(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+        from games.common import VirtualJoystick, TouchButton
+        from config import NEON_CYAN, NEON_RED
+        
+        self._joy_move = VirtualJoystick(120, SCREEN_HEIGHT - 120, 70, NEON_CYAN)
+        self._joy_aim = VirtualJoystick(SCREEN_WIDTH - 120, SCREEN_HEIGHT - 120, 70, NEON_RED)
+        self._btn_dash = TouchButton(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 100, 40, "Dash", NEON_CYAN)
+
         self._wave        = 0
         self._enemies: List[SniperEnemy | FastEnemy] = []
         self._boss: Optional[SniperBoss]             = None
@@ -827,6 +856,10 @@ class SniperGame:
     def handle_event(self, event: pygame.event.Event) -> Optional[str]:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             return "pause"
+            
+        self._joy_move.handle_event(event)
+        self._joy_aim.handle_event(event)
+        self._btn_dash.handle_event(event)
         self._player.handle_event(event)
         return None
 
@@ -839,8 +872,13 @@ class SniperGame:
         mb   = pygame.mouse.get_pressed()
         wx   = mpos[0] + self._camera.x
         wy   = mpos[1] + self._camera.y
+        
+        self._btn_dash.update()
+        move_dir = (self._joy_move.dir_x, self._joy_move.dir_y)
+        aim_dir = (self._joy_aim.dir_x, self._joy_aim.dir_y)
+        shoot = (self._joy_aim.dir_x != 0 or self._joy_aim.dir_y != 0)
 
-        self._player.update(dt, keys, (wx, wy), mb, self._obs_rects)
+        self._player.update(dt, keys, (wx, wy), mb, self._obs_rects, move_joy=move_dir, aim_joy=aim_dir, dash_btn=self._btn_dash.is_pressed, shoot_btn=shoot)
         self._camera.follow(self._player.rect, dt)
         self._particles.update(dt)
         self._floats.update(dt)
@@ -1047,6 +1085,10 @@ class SniperGame:
         if self._settings.show_fps:
             self._fps_cnt.update(clock)
             self._fps_cnt.draw(self._screen)
+
+        self._joy_move.draw(self._screen)
+        self._joy_aim.draw(self._screen)
+        self._btn_dash.draw(self._screen)
 
         lvl_txt = "THE ARCHITECT" if self._level == 6 else f"LEVEL {self._level}"
         col = GOLD if self._level == 6 else self._theme_col
