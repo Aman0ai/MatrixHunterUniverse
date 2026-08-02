@@ -19,7 +19,8 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 
 import pygame
 
-from config import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY
+from config import SCREEN_WIDTH, SCREEN_HEIGHT, GRAVITY, NEON_CYAN, FONT_MEDIUM
+from ui import draw_text
 
 
 # ─────────────────────────────────────────────────────────────────────────────
