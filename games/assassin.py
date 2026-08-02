@@ -825,7 +825,7 @@ class AssassinGame:
         self._sound    = sound
         self._settings = settings
         self._save     = save_mgr
-        from config import GameID, LEVEL_THEMES
+        from config import GameID, LEVEL_THEMES, MATRIX_GREEN
         self._game_id  = GameID.ASSASSIN
         self._level    = level
         self._theme_col= LEVEL_THEMES.get(level, MATRIX_GREEN)
@@ -850,11 +850,11 @@ class AssassinGame:
         self._floats     = FloatingTextManager()
 
         from games.common import VirtualJoystick, TouchButton
-        from config import NEON_RED, NEON_GREEN
+        from config import NEON_RED
         
         self._joy = VirtualJoystick(100, SCREEN_HEIGHT - 100, 60)
         self._btn_action = TouchButton(SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100, 40, "E", NEON_RED)
-        self._btn_crouch = TouchButton(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100, 40, "C", NEON_GREEN)
+        self._btn_crouch = TouchButton(SCREEN_WIDTH - 200, SCREEN_HEIGHT - 100, 40, "C", MATRIX_GREEN)
 
         self._load_level(self._level_idx)
         self._sound.play_music("music_assassin")
@@ -1062,10 +1062,6 @@ class AssassinGame:
 
         self._screen.fill((8, 10, 18))
 
-        # World surface
-        world = pygame.Surface((SCREEN_WIDTH + 60, SCREEN_HEIGHT + 60))
-        world.fill((8, 10, 18))
-
         # Floor grid
         for gx in range(0, 1200, TILE_SIZE):
             for gy in range(0, 900, TILE_SIZE):
@@ -1104,12 +1100,9 @@ class AssassinGame:
 
         # ── HUD ──────────────────────────────────────────────────
         hp_ratio = 1.0 if not self._alarm else 0.25 # Vignette pulse intense during alarm
-        self._screen.blit(world, (0, 0))
-
-        # HUD
         self._score_disp.draw(self._screen)
         self._lives_disp.draw(self._screen)
-        self._vignette.draw(self._screen)
+        self._vignette.draw(self._screen, hp_ratio)
         self._fps_cnt.draw(self._screen)
 
         # Mobile Controls
