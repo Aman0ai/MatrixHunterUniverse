@@ -706,18 +706,21 @@ class VignetteOverlay:
     @staticmethod
     def _make_vignette(w: int, h: int,
                        colour: Tuple[int,int,int], max_alpha: int) -> pygame.Surface:
-        surf = pygame.Surface((w, h), pygame.SRCALPHA)
-        cx, cy = w / 2, h / 2
-        for y in range(0, h, 4):
-            for x in range(0, w, 4):
+        # Generate at 1/16th resolution to prevent heavy CPU blocking on Android
+        # which causes ANR/crash due to SDL event queue overflow during the block.
+        sw, sh = max(1, w // 16), max(1, h // 16)
+        surf = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        cx, cy = sw / 2, sh / 2
+        for y in range(sh):
+            for x in range(sw):
                 dx = (x - cx) / cx
                 dy = (y - cy) / cy
                 dist = math.hypot(dx, dy)
                 a    = max(0, int(max_alpha * (dist - 0.5) / 0.5))
                 a    = min(max_alpha, a)
                 if a > 0:
-                    pygame.draw.rect(surf, (*colour, a), (x, y, 4, 4))
-        return surf
+                    surf.set_at((x, y), (*colour, a))
+        return pygame.transform.smoothscale(surf, (w, h))
 
     def update(self, dt: float) -> None:
         self._t += dt * 5
