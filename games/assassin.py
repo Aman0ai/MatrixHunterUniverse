@@ -848,9 +848,9 @@ class AssassinGame:
         self._stealth_kills = 0
         self._floats     = FloatingTextManager()
 
-        self._load_level(0)
+        self._load_level(self._level_idx)
         self._sound.play_music("music_assassin")
-        self._msgs.push("LEVEL 1 — Collect the key and reach the EXIT!", NEON_CYAN, 4.0)
+        self._msgs.push(f"LEVEL {self._level} — Collect the key and reach the EXIT!", NEON_CYAN, 4.0)
         self._msgs.push("[C] Hold to crouch (reduces detection)", GOLD, 4.0)
 
     def _load_level(self, idx: int) -> None:
@@ -886,10 +886,10 @@ class AssassinGame:
             elif self._level >= 10: gt = "elite"
             self._guards.append(Guard(wp, mirror=data["guard_mirrors"][i], gtype=gt))
 
-        self._heals: List[HealingZone] = [
-            HealingZone(hx, hy)
-            for hx, hy in data.get("heals", [])
-        ]
+        self._heals: List[HealingZone] = []
+        if "heals" in data:
+            for hx, hy in data["heals"]:
+                self._heals.append(HealingZone(hx, hy))
 
         self._camera     = Camera(
             max(t.rect.right for t in self._tiles) + 50,
