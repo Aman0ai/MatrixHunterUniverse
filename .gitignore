@@ -1,0 +1,36 @@
+# ── Python ────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# ── Virtual environments ───────────────────────────────────────────
+.venv/
+venv/
+env/
+.env
+
+# ── Buildozer / Android build output ──────────────────────────────
+.buildozer/
+bin/
+build/
+
+# ── Runtime-generated data (save files, settings) ─────────────────
+# Uncomment below if you do NOT want to commit sample data files.
+# data/
+
+# ── OS / IDE junk ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ── Logs ──────────────────────────────────────────────────────────
+*.log

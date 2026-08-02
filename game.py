@@ -57,6 +57,7 @@ class GameManager:
 
         # ── display ──────────────────────────────────────────────
         flags  = pygame.FULLSCREEN if self._settings.fullscreen else 0
+        flags |= pygame.SCALED  # Auto-scales 1280x720 to the native device screen correctly
         self._screen: pygame.Surface = pygame.display.set_mode(
             self._settings.resolution, flags
         )
@@ -294,6 +295,12 @@ class GameManager:
                 # Global escape handling
                 if event.key == pygame.K_F11:
                     self._toggle_fullscreen()
+                # On Android, the back gesture/button acts as K_ESCAPE or K_AC_BACK
+                elif event.key == pygame.K_ESCAPE or getattr(event, 'key', None) == getattr(pygame, 'K_AC_BACK', None):
+                    if self._state == GameState.PLAYING:
+                        self._go_to(GameState.PAUSED)
+                    elif self._state not in (GameState.MAIN_MENU, GameState.LOADING):
+                        self._go_to(GameState.MAIN_MENU)
 
             # Route to active scene
             if self._state == GameState.LOADING:

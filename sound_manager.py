@@ -51,7 +51,8 @@ class SoundManager:
 
     def _store(self, name: str) -> None:
         try:
-            filepath = os.path.join("assets", "sounds", f"{name}.ogg")
+            _BASE = os.path.dirname(os.path.abspath(__file__))
+            filepath = os.path.join(_BASE, "assets", "sounds", f"{name}.ogg")
             if os.path.exists(filepath):
                 sound = pygame.mixer.Sound(filepath)
                 self._sounds[name] = sound

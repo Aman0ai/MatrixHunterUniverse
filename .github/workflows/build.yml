@@ -2,39 +2,105 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
+    # Force Java 17 for the entire job (sdkmanager requires Java 17+)
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
     steps:
     - name: Checkout source code
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    - name: Verify Python version
+    - name: Install system dependencies
       run: |
-        python --version
-        which python
-        python3 --version
+        sudo apt-get update -qq
+        sudo apt-get install -y \
+          git unzip wget \
+          libncurses5 libncurses5-dev \
+          libstdc++6 zlib1g \
+          openjdk-17-jdk \
+          build-essential ccache \
+          autoconf automake libtool
 
-    - name: Install Pygbag
+    - name: Set Java 17 as default JDK
       run: |
-        python -m pip install --upgrade pip
-        pip install pygbag
+        # Ensure Java 17 is used for all subsequent steps
+        sudo update-alternatives --set java \
+          /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+        sudo update-alternatives --set javac \
+          /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+        echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+        echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> $GITHUB_PATH
+        java -version
 
-    - name: Build WebAssembly (PWA)
+    - name: Install Buildozer and Cython
       run: |
-        python -m pygbag --build .
+        pip install --upgrade pip
+        pip install buildozer cython
 
-    - name: Upload Web Build
+    - name: Cache Buildozer global directory
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.buildozer
+          ~/.gradle
+        key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+        restore-keys: |
+          buildozer-${{ runner.os }}-
+
+    - name: Set up Android SDK + Accept licenses
+      run: |
+        SDK_DIR="$HOME/.buildozer/android/platform/android-sdk"
+        mkdir -p "$SDK_DIR"
+
+        # ── Download Android Command Line Tools ──────────────────────────
+        # (compiled for Java 17 — must have JAVA_HOME set to Java 17 above)
+        wget -q \
+          "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" \
+          -O /tmp/cmdline-tools.zip
+
+        # ── Extract to SDK directory ─────────────────────────────────────
+        mkdir -p "$SDK_DIR/cmdline-tools"
+        unzip -q /tmp/cmdline-tools.zip -d "$SDK_DIR/cmdline-tools"
+        mv "$SDK_DIR/cmdline-tools/cmdline-tools" "$SDK_DIR/cmdline-tools/latest"
+
+        # ── Symlink old path → new path ──────────────────────────────────
+        # Buildozer's internal code looks for tools/bin/sdkmanager (old SDK layout)
+        mkdir -p "$SDK_DIR/tools/bin"
+        ln -sf \
+          "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
+          "$SDK_DIR/tools/bin/sdkmanager"
+
+        SDKMANAGER="$SDK_DIR/cmdline-tools/latest/bin/sdkmanager"
+
+        # Confirm Java 17 is active
+        echo "Using Java: $(java -version 2>&1 | head -1)"
+
+        # ── Accept all SDK licenses non-interactively ────────────────────
+        yes | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses || true
+
+        # ── Pre-install required SDK components ──────────────────────────
+        "$SDKMANAGER" --sdk_root="$SDK_DIR" \
+          "build-tools;34.0.0" \
+          "platforms;android-33" \
+          "platform-tools"
+
+    - name: Build Android APK
+      run: buildozer android debug
+
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: MatrixHunterUniverse-WebBuild
-        path: build/web
+        name: MatrixHunterUniverse-APK
+        path: bin/*.apk

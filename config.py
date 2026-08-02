@@ -19,8 +19,13 @@ TITLE: str         = "Matrix Hunter Universe"
 VERSION: str       = "1.0.0"
 
 # ──────────────────────────── File Paths ─────────────────────────
+import sys as _sys
+_ANDROID_DIR = os.environ.get('ANDROID_PRIVATE', None) \
+            or os.environ.get('ANDROID_ARGUMENT', None) \
+            or os.path.dirname(os.path.abspath(__file__))
+
 BASE_DIR: str       = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR: str       = os.path.join(BASE_DIR, "data")
+DATA_DIR: str       = os.path.join(_ANDROID_DIR, "data")
 ASSETS_DIR: str     = os.path.join(BASE_DIR, "assets")
 HIGHSCORES_FILE: str = os.path.join(DATA_DIR, "highscores.json")
 SETTINGS_FILE: str  = os.path.join(DATA_DIR, "settings.json")
@@ -117,7 +122,11 @@ COMBO_MAX: int       = 16   # max combo multiplier cap
 
 # ──────────────────────────── Touch / Mobile ──────────────────────
 import pygame as _pg
-TOUCH_ENABLED: bool = False  # set True at runtime when touch detected
+# Auto-detect Android: sys.getandroidapilevel only exists inside python-for-android.
+# On desktop this attribute is absent → TOUCH_ENABLED = False (keyboard + mouse).
+# On Android it is always present → TOUCH_ENABLED = True (virtual joystick shown).
+import sys as _sys
+TOUCH_ENABLED: bool = hasattr(_sys, 'getandroidapilevel')
 
 # ──────────────────────────── Difficulty Presets ─────────────────
 class Difficulty(Enum):

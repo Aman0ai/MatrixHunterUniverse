@@ -38,7 +38,7 @@ _check_deps()
 
 import pygame
 
-async def main() -> None:
+def main() -> None:
     """Initialise and run the game."""
     # Ensure data directory exists before any save/settings operations
     from config import DATA_DIR
@@ -47,8 +47,19 @@ async def main() -> None:
 
     from game import GameManager
     manager = GameManager()
-    await manager.run()
+
+    # asyncio wrapper kept for Pygbag (web) compatibility.
+    # Falls back gracefully on Android where the event loop may differ.
+    try:
+        asyncio.run(manager.run())
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(manager.run())
+        finally:
+            loop.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
