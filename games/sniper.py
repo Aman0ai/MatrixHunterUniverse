@@ -696,20 +696,30 @@ class SniperGame:
         self._level    = level
         self._theme_col= LEVEL_THEMES.get(level, MATRIX_GREEN)
         
-        # Simple waves based on level (1 to 6)
+        # V2 Mapping
         self.WAVES = []
         if level == 1:
             self.WAVES = [dict(enemies=4, fast=0, boss=False)]
         elif level == 2:
-            self.WAVES = [dict(enemies=5, fast=0, boss=False), dict(enemies=6, fast=1, boss=False)]
+            self.WAVES = [dict(enemies=6, fast=0, boss=False)]
         elif level == 3:
-            self.WAVES = [dict(enemies=5, fast=1, boss=False), dict(enemies=7, fast=2, boss=False), dict(enemies=8, fast=2, boss=False)]
+            self.WAVES = [dict(enemies=8, fast=0, boss=False)]
         elif level == 4:
-            self.WAVES = [dict(enemies=6, fast=2, boss=False), dict(enemies=8, fast=3, boss=False), dict(enemies=10, fast=3, boss=False)]
+            self.WAVES = [dict(enemies=8, fast=2, boss=False)]
         elif level == 5:
-            self.WAVES = [dict(enemies=10, fast=4, boss=True)]
-        else: # level 6 (The Architect)
-            self.WAVES = [dict(enemies=12, fast=6, boss=False), dict(enemies=15, fast=8, boss=True)]
+            self.WAVES = [dict(enemies=10, fast=4, boss=False)]
+        elif level == 6:
+            self.WAVES = [dict(enemies=12, fast=6, boss=False)]
+        elif level == 7:
+            self.WAVES = [dict(enemies=14, fast=8, boss=False)]
+        elif level == 8:
+            self.WAVES = [dict(enemies=20, fast=5, boss=False), dict(enemies=25, fast=5, boss=False)]
+        elif level == 9:
+            self.WAVES = [dict(enemies=25, fast=10, boss=False), dict(enemies=30, fast=10, boss=False)]
+        elif level == 10:
+            self.WAVES = [dict(enemies=30, fast=15, boss=False), dict(enemies=20, fast=10, boss=True)]
+        else: # level 11 (The Architect)
+            self.WAVES = [dict(enemies=0, fast=0, boss=True), dict(enemies=0, fast=0, boss=True), dict(enemies=0, fast=0, boss=True), dict(enemies=0, fast=0, boss=True), dict(enemies=0, fast=0, boss=True)]
 
         self._tiles       = _build_level_tiles(self._level)
         self._obs_rects   = [t.rect for t in self._tiles]

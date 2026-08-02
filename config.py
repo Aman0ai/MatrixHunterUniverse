@@ -58,7 +58,12 @@ LEVEL_THEMES = {
     3: NEON_PURPLE,
     4: NEON_ORANGE,
     5: NEON_RED,
-    6: GOLD
+    6: GOLD,
+    7: NEON_BLUE,
+    8: NEON_PINK,
+    9: NEON_YELLOW,
+    10: WHITE,
+    11: MATRIX_DARK
 }
 
 # Alias used by UI widgets

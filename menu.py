@@ -23,7 +23,7 @@ from config import (
     SCREEN_WIDTH, SCREEN_HEIGHT, TITLE, VERSION,
     BLACK, WHITE, DARK_BG, DARK_PANEL, DARK_GRAY, MID_GRAY,
     MATRIX_GREEN, MATRIX_DIM, NEON_CYAN, NEON_RED, NEON_ORANGE,
-    NEON_YELLOW, NEON_PURPLE, GOLD,
+    NEON_YELLOW, NEON_PURPLE, GOLD, MATRIX_DARK,
     FONT_SMALL, FONT_MEDIUM, FONT_LARGE, FONT_XLARGE, FONT_TITLE,
     GameID, GAME_DESCRIPTIONS, GAME_COLOURS, LEVEL_THEMES,
 )
@@ -414,14 +414,24 @@ class LevelSelectScreen:
         self._unlocked_level = self._save.get_unlocked_level(game_id)
         self._hovered = -1
         
-        cy = SCREEN_HEIGHT // 2 - 40
+        cy_row1 = SCREEN_HEIGHT // 2 - 90
         bw, bh, gap = 120, 120, 20
-        total_w = 6 * bw + 5 * gap
-        start_x = (SCREEN_WIDTH - total_w) // 2
+        total_w_row1 = 6 * bw + 5 * gap
+        start_x_row1 = (SCREEN_WIDTH - total_w_row1) // 2
+
+        cy_row2 = SCREEN_HEIGHT // 2 + 50
+        total_w_row2 = 5 * bw + 4 * gap
+        start_x_row2 = (SCREEN_WIDTH - total_w_row2) // 2
 
         self._cards = []
-        for i in range(1, 7):
-            cx = start_x + (i - 1) * (bw + gap)
+        for i in range(1, 12):
+            if i <= 6:
+                cx = start_x_row1 + (i - 1) * (bw + gap)
+                cy = cy_row1
+            else:
+                cx = start_x_row2 + (i - 7) * (bw + gap)
+                cy = cy_row2
+                
             self._cards.append({
                 "level": i,
                 "rect": pygame.Rect(cx, cy, bw, bh),
@@ -503,9 +513,9 @@ class LevelSelectScreen:
                 glow_col = tuple(int(c * pulse) for c in col)
                 pygame.draw.rect(surface, glow_col, r, 3, border_radius=12)
             
-            if lvl == 6:
-                draw_text(surface, "VI", r.centerx, r.centery - 16, FONT_XLARGE, GOLD if is_unlocked else col, anchor="center")
-                draw_text(surface, "ARCHITECT", r.centerx, r.centery + 10, FONT_SMALL, GOLD if is_unlocked else col, anchor="center")
+            if lvl == 11:
+                draw_text(surface, "XI", r.centerx, r.centery - 16, FONT_XLARGE, MATRIX_DARK if is_unlocked else col, anchor="center")
+                draw_text(surface, "ARCHITECT", r.centerx, r.centery + 10, FONT_SMALL, MATRIX_DARK if is_unlocked else col, anchor="center")
             else:
                 draw_text(surface, str(lvl), r.centerx, r.centery - 10, FONT_XLARGE, col, anchor="center")
                 
@@ -1091,6 +1101,6 @@ class AchievementsScreen:
             draw_text(surface, title, cx - 180, iy - 10, FONT_MEDIUM, col, anchor="midleft")
             draw_text(surface, desc, cx - 180, iy + 15, FONT_SMALL, col if is_unlocked else (50,50,50), anchor="midleft")
             if is_unlocked:
-                draw_text(surface, f"Reward: {ach['reward']}", cx + 220, iy, FONT_SMALL, NEON_GREEN if is_unlocked else DARK_GRAY, anchor="midright")
+                draw_text(surface, f"Reward: {ach['reward']}", cx + 220, iy, FONT_SMALL, MATRIX_GREEN if is_unlocked else DARK_GRAY, anchor="midright")
             
         self._back_btn.draw(surface)

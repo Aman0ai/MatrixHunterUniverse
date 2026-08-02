@@ -359,7 +359,8 @@ class GameManager:
         dt = min(dt, 0.1)
 
         self._transition.update(dt)
-        self._crt.update(dt)
+        if not TOUCH_ENABLED:
+            self._crt.update(dt)
         self._ach_toast.update(dt)
         
         if self._transition.done and self._next_state is not None:
@@ -512,7 +513,8 @@ class GameManager:
         if self._touch_overlay and self._state == GameState.PLAYING:
             self._touch_overlay.draw(self._screen)
 
-        self._crt.draw(self._screen)
+        if not TOUCH_ENABLED:
+            self._crt.draw(self._screen)
         self._ach_toast.draw(self._screen)
         self._transition.draw(self._screen)
 

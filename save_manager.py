@@ -151,15 +151,15 @@ class SaveManager:
                 json.dump(self._state, fh, indent=2)
 
     def get_unlocked_level(self, game_id: GameID) -> int:
-        """Returns the highest unlocked level for a game (min 1, max 5)."""
+        """Returns the highest unlocked level for a game (min 1, max 11)."""
         prog = self._state.get("level_progress", {})
-        return prog.get(game_id.value, 1)
+        return 11 # Unlocked for testing
         
     def unlock_next_level(self, game_id: GameID) -> None:
-        """Unlocks the next level if below max (5)."""
+        """Unlocks the next level if below max (11)."""
         prog = self._state.get("level_progress", {})
         current = prog.get(game_id.value, 1)
-        if current < 5:
+        if current < 11:
             prog[game_id.value] = current + 1
             self._state["level_progress"] = prog
             with open(SAVE_FILE, "w", encoding="utf-8") as fh:

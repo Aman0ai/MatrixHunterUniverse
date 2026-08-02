@@ -721,18 +721,14 @@ class SpaceBattleGame:
         self._level    = level
         self._theme_col= LEVEL_THEMES.get(level, MATRIX_GREEN)
 
-        if level == 1:
-            self._waves = [dict(count=4, heavy=0, boss=False, formation="grid", angle=0.0)]
-        elif level == 2:
-            self._waves = [dict(count=4, heavy=0, boss=False, formation="grid", angle=0.0), dict(count=5, heavy=1, boss=False, formation="v", angle=0.0)]
-        elif level == 3:
-            self._waves = [dict(count=5, heavy=1, boss=False, formation="v", angle=0.0), dict(count=6, heavy=1, boss=False, formation="grid", angle=0.3)]
-        elif level == 4:
-            self._waves = [dict(count=6, heavy=2, boss=False, formation="grid", angle=0.0), dict(count=6, heavy=2, boss=False, formation="v", angle=-0.3)]
-        elif level == 5:
-            self._waves = [dict(count=0, heavy=0, boss=True, formation="single", angle=0.0)]
-        else: # level 6 (The Architect)
-            self._waves = [dict(count=8, heavy=3, boss=False, formation="v", angle=0.0), dict(count=0, heavy=0, boss=True, formation="single", angle=0.0)]
+        if level <= 4:
+            self._waves = [dict(count=6+(level*2), heavy=level, boss=False, formation="grid", angle=0.0)]
+        elif level <= 8:
+            self._waves = [dict(count=8+(level*2), heavy=level, boss=False, formation="v", angle=0.3)]
+        elif level <= 10:
+            self._waves = [dict(count=12, heavy=6, boss=False, formation="grid", angle=0.0), dict(count=12, heavy=6, boss=False, formation="v", angle=0.5)]
+        else: # level 11 (The Architect)
+            self._waves = [dict(count=0, heavy=0, boss=True, formation="single", angle=0.0), dict(count=0, heavy=0, boss=True, formation="single", angle=0.0), dict(count=0, heavy=0, boss=True, formation="single", angle=0.0)]
 
         self._player    = Spaceship(SCREEN_WIDTH // 2, SCREEN_HEIGHT * 0.7)
         self._player.settings = self._settings

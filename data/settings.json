@@ -11,6 +11,6 @@
   "show_fps": true,
   "screen_shake": true,
   "particles": true,
-  "avatar_type": "shape",
-  "avatar_value": "default"
+  "avatar_type": "image",
+  "avatar_value": "assets/avatar2.png"
 }

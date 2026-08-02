@@ -824,9 +824,9 @@ class AssassinGame:
         for i, wp in enumerate(data["guard_waypoints"]):
             gt = "normal"
             if self._level == 1: gt = "novice"
-            elif self._level == 3 and i % 2 == 1: gt = "camera"
-            elif self._level == 4: gt = "alert"
-            elif self._level >= 5: gt = "elite"
+            elif self._level >= 2 and self._level <= 5: gt = "alert"
+            elif self._level >= 6 and self._level <= 9: gt = "camera" if i % 2 == 0 else "elite"
+            elif self._level >= 10: gt = "elite"
             self._guards.append(Guard(wp, mirror=data["guard_mirrors"][i], gtype=gt))
 
         self._heals: List[HealingZone] = [

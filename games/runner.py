@@ -429,16 +429,26 @@ class RunnerGame:
         from config import LEVEL_THEMES
         self._theme_col = LEVEL_THEMES.get(level, MATRIX_GREEN)
         
-        if level == 6:
+        if level <= 3:
+            self._target_dist = 1000.0
+            self.INITIAL_SPEED = 300.0
+            self.MAX_SPEED = 600.0
+            self.ACCEL = 5.0
+        elif level <= 6:
             self._target_dist = 2000.0
             self.INITIAL_SPEED = 500.0
+            self.MAX_SPEED = 1000.0
+            self.ACCEL = 20.0
+        elif level <= 9:
+            self._target_dist = 3000.0
+            self.INITIAL_SPEED = 700.0
             self.MAX_SPEED = 1200.0
-            self.ACCEL = 12.0
+            self.ACCEL = 10.0
         else:
-            self._target_dist = level * 300.0
-            self.INITIAL_SPEED = 280.0 + (level - 1) * 30.0
-            self.MAX_SPEED = 780.0 + (level - 1) * 50.0
-            self.ACCEL = 8.0
+            self._target_dist = 4000.0
+            self.INITIAL_SPEED = 1000.0
+            self.MAX_SPEED = 1800.0
+            self.ACCEL = 15.0
             
         self._speed     = self.INITIAL_SPEED
         self._dist      = 0.0          # metres scrolled
